@@ -16,12 +16,12 @@
 >>main.py
 >>readme.md
 
-*[各文件功能简介]     
-  *allUrlAndShort.py  : 获取汽车之家页面链接、简要文章链接
-  *changeUA.py          : 随机选择UA进行反爬虫
-  *commentDetail.py : 获取评论内容
-  *detailText.py           : 获取汽车之家文章细节
-  *optMysqldb.py       : MySQL数据库一系列操作
-  *writeLog.py             : 对操作过程写日志
-  *main.py                    : 主程序入口
-  *readme.md             : readme文档
+* [各文件功能简介]     
+  * allUrlAndShort.py  : 获取汽车之家页面链接、简要文章链接
+  * changeUA.py          : 随机选择UA进行反爬虫
+  * commentDetail.py : 获取评论内容
+  * detailText.py           : 获取汽车之家文章细节
+  * optMysqldb.py       : MySQL数据库一系列操作
+  * writeLog.py             : 对操作过程写日志
+  * main.py                    : 主程序入口
+  * readme.md             : readme文档
