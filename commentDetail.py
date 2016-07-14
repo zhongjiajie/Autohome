@@ -1,7 +1,13 @@
-#!/usr/bin/python
+#! /usr/bin/python
 # -*- coding:utf8 -*-
+#======================#
+#---脚本名：commentDetail.py
+#---作者：zhongjiajie
+#---日期：2016/03/20
+#---功能：获取评论内容
+#======================#
 
-#-----导入模块-----#
+#===导入模块===#
 #---原模块---#
 import Queue
 import sys
@@ -13,11 +19,11 @@ import optMysqldb
 import writeLog
 import changeUA
 
-#-----设置全局编码为utf8-----#
+#===设置全局编码为utf8===#
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-#-----从mysql中获取文章url-----#
+#===从mysql中获取文章url===#
 #---返回数组---#
 def getArticleUrl(database,table,field):
     try:
@@ -33,7 +39,7 @@ def getArticleUrl(database,table,field):
         print 'fail to get url from mysql ' + ' [%s,%s]'%(Exception,e)
         # writeLog.writeErrorLog('fail commentDetail getArticleUrl %s : %s'%(Exception,e),'autohome')       #写入总日志文件
         # writeLog.writeErrorLog('fail commentDetail getArticleUrl %s : %s'%(Exception,e),'autohome_error') #写入错误日志文件
-#-----根据数据类型解析url-----#
+#===根据数据类型解析url===#
 #--返回格式化soup--#
 def getSoupFromUrl(url):
     params = {'Accept':'*/*',
@@ -56,7 +62,7 @@ def getSoupFromUrl(url):
         # writeLog.writeErrorLog('fail commentDetail getSoupFromUrl %s : %s'%(Exception,e),'autohome')       #写入总日志文件
         # writeLog.writeErrorLog('fail commentDetail getSoupFromUrl %s : %s'%(Exception,e),'autohome_error') #写入错误日志文件
 
-#-----获取所有的评论页面-----#
+#===获取所有的评论页面===#
 def getCommentPage(firstPageUrl,soup):
     try:
         #存放评论页面
@@ -77,11 +83,11 @@ def getCommentPage(firstPageUrl,soup):
 
     except Exception,e:
         print 'fail to get comment page ' + firstPageUrl + ' [%s,%s]'%(Exception,e)
-        # writeLog.writeErrorLog('fail commentDetail getCommentPage %s : %s'%(Exception,e),'autohome')       #写入总日志文件
-        # writeLog.writeErrorLog('fail commentDetail getCommentPage %s : %s'%(Exception,e),'autohome_error') #写入错误日志文件
+        writeLog.writeErrorLog('fail commentDetail getCommentPage %s : %s'%(Exception,e),'autohome')       #写入总日志文件
+        writeLog.writeErrorLog('fail commentDetail getCommentPage %s : %s'%(Exception,e),'autohome_error') #写入错误日志文件
         return 0
 
-#-----评论细节-----#
+#===评论细节===#
 def getCommentDetail(queue):
     while (queue.empty() != True):
         try:
@@ -189,24 +195,6 @@ def getCommentDetail(queue):
             print 'succeed to get comment detail ' + m_url_eachCommentPage
         except Exception,e:
             print 'fail to get comment page ' + m_url_srcArticle + ' [%s,%s]'%(Exception,e)
-    #         writeLog.writeErrorLog('fail commentDetail getCommentDetail %s : %s'%(Exception,e),'autohome')       #写入总日志文件
-    #         writeLog.writeErrorLog('fail commentDetail getCommentDetail %s : %s'%(Exception,e),'autohome_error') #写入错误日志文件
-    # return 0
-
-
-# #######################################################################################################
-# m_list_articleCommentPage = getArticleUrl('autohome','autohome_detail_text','article_commentPage')
-# # print len(m_str_articleUrlList)
-# for m_str_articleCommentPage in m_list_articleCommentPage:
-#     # print '----------------------------'
-#     # print str_eachArticleUrl
-#     m_str_soup = getSoupFromUrl(m_str_articleCommentPage)
-#     m_queue_commentPage = getCommentPage(m_str_articleCommentPage,m_str_soup)
-#     m_str_CommentConnent = getCommentDetail(m_queue_commentPage)
-#
-#
-# url = 'http://reply.autohome.com.cn/Articlecomment.aspx?articleid=886360&page=1&order=0'
-# m_str_soup = getSoupFromUrl(url)
-# m_queue_commentPage = getCommentPage(url,m_str_soup)
-# getCommentDetail(m_queue_commentPage)
-# #######################################################################################################
+            writeLog.writeErrorLog('fail commentDetail getCommentDetail %s : %s'%(Exception,e),'autohome')       #写入总日志文件
+            writeLog.writeErrorLog('fail commentDetail getCommentDetail %s : %s'%(Exception,e),'autohome_error') #写入错误日志文件
+    return 0

@@ -1,8 +1,15 @@
 #! /usr/bin/python
 # -*- coding:utf-8 -*-
+#======================#
+#---脚本名：writeLog.py
+#---作者：zhongjiajie
+#---日期：2016/03/20
+#---功能：对操作过程写日志
+#======================#
+
 import time
 
-#------日志模块------#
+#===日志模块===#
 #获取当前系统时间 返回 年-月-日 时:分:秒
 def getNowTime():
     return time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
