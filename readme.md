@@ -8,7 +8,7 @@
 
 ####[文件结构图]
 |--Python_car<br> 
->|--allUrlAndShort.py<br> 
+>|--allUrlAndShort.py<br>
 |--changeUA.py<br> 
 |--commentDetail.py<br> 
 |--detailText.py<br> 
