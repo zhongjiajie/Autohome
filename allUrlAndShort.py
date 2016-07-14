@@ -1,7 +1,13 @@
-#!/usr/bin/python
+#! /usr/bin/python
 # -*- coding:utf8 -*-
+#==============================#
+#---脚本名：allUrlAndShort.py
+#---作者：zhongjiajie
+#---日期：2016/03/20
+#---功能：获取汽车之家页面链接、简要文章链接
+#==============================#
 
-#-----导入模块-----#
+#===导入模块===#
 #---原模块---#
 import sys
 #---第三方---#
@@ -12,17 +18,17 @@ import optMysqldb
 import writeLog
 import changeUA
 
-#-----设置全局编码为utf8-----#
+#===设置全局编码为utf8===#
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-#-----获取autohome所有页面的URL 写入temp_URL_List-----#
+#===获取autohome所有页面的URL 写入temp_URL_List===#
 def getUrlAndShort():
     #---变量声明---#
     s_n_isloop = 0    #0循环 1退出
     m_str_tempPage = '/all/2/#liststart'    #开始页面
 
-    #-----获取autohome所有页面链接 文章简介-----#
+    #===获取autohome所有页面链接 文章简介===#
     #---所有页面链接 m_str_tempUrlList---#
     #---所有文章简介 m_str_articleSampleText---#
     #删除已存在的数据库

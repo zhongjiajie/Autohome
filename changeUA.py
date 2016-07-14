@@ -1,13 +1,19 @@
-#!/usr/bin/python
+#! /usr/bin/python
 # -*- coding:utf8 -*-
+#======================#
+#---脚本名：changeUA.py
+#---作者：zhongjiajie
+#---日期：2016/03/20
+#---功能：随机选择UA进行反爬虫
+#======================#
 
-#-----导入模块-----#
+#===导入模块===#
 #---原模块---#
 import random
 #---第三方---#
 #---自定义---#
 
-#-----从以下浏览器中随机选取ua,模拟他们访问-----#
+#===从以下浏览器中随机选取ua,模拟他们访问===#
 def getUA():
     UaList = ["Mozilla/5.0 (Linux; U; Android 2.3.6; en-us; Nexus S Build/GRK39F) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1",
               "Avant Browser/1.2.789rel1 (http://www.avantbrowser.com)",

@@ -1,14 +1,20 @@
-#!/usr/bin/python
+#! /usr/bin/python
 # -*- coding:utf8 -*-
+#======================#
+#---脚本名：optMysqldb.py
+#---作者：zhongjiajie
+#---日期：2016/03/20
+#---功能：MySQL数据库一系列操作
+#======================#
 
-#-----导入模块-----#
+#===导入模块===#
 #---原模块---#
 #---第三方---#
 import MySQLdb
 #---自定义---#
 import writeLog
 
-#------连接数据库------#
+#===连接数据库===#
 def conToMysql():
     try:
         #打开数据库连接
@@ -32,7 +38,7 @@ def closeMysql():
         writeLog.writeErrorLog('fail optMysqldb closeMysql Mysql Error %d: %s'%(e.args[0],e.args[1]),'autohome_error')#写入错误日志文
     return 0
 
-#------删除数据库------#
+#===删除数据库===#
 def dropDatabase(databaseName):
     try:
         conToMysql()
@@ -43,7 +49,7 @@ def dropDatabase(databaseName):
         writeLog.writeErrorLog('fail optMysqldb dropDatabase Mysql Error %d: %s'%(e.args[0],e.args[1]),'autohome_error')#写入错误日志文
     return 0
 
-#------从数据库中取值------#
+#===从数据库中取值===#
 def getValues(database,table,field):
     try:
         conToMysql()
@@ -60,7 +66,7 @@ def getValues(database,table,field):
         writeLog.writeErrorLog('fail optMysqldb getValues Mysql Error %d: %s'%(e.args[0],e.args[1]),'autohome')#写入总日志文件
         writeLog.writeErrorLog('fail optMysqldb getValues Mysql Error %d: %s'%(e.args[0],e.args[1]),'autohome_error')#写入错误日志文
 
-#------连接MySQL 写入autohome所有页面的URL page_URL------#
+#===连接MySQL 写入autohome所有页面的URL page_URL===#
 def insertPageUrl(pageUrl):
     try:
         conToMysql()
@@ -82,7 +88,7 @@ def insertPageUrl(pageUrl):
         writeLog.writeErrorLog('fail optMysqldb insertPageUrl Mysql Error %d: %s'%(e.args[0],e.args[1]),'autohome_error')#写入错误日志文
     return 0
 
-#------连接MySQL 写入autohome每个页面的所有文章------#
+#===连接MySQL 写入autohome每个页面的所有文章===#
 def insertArticleSampleText(articleSampleText):
     try:
         conToMysql()
@@ -108,7 +114,7 @@ def insertArticleSampleText(articleSampleText):
         writeLog.writeErrorLog('fail optMysqldb insertArticleSampleText Mysql Error %d: %s'%(e.args[0],e.args[1]),'autohome_error')#写入错误日志文
     return 0
 
-#-----写入文章细节部分-----#
+#===写入文章细节部分===#
 def insertArticleDetailText(articleDetailText):
     try:
         conToMysql()
@@ -140,7 +146,7 @@ def insertArticleDetailText(articleDetailText):
         writeLog.writeErrorLog('fail optMysqldb insertArticleDetailText Mysql Error %d: %s'%(e.args[0],e.args[1]),'autohome_error')#写入错误日志文
     return 0
 
-#-----commentDetail-----#
+#===commentDetail===#
 def insertCommentDetail(commentDetail):
     try:
         conToMysql()
