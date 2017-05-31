@@ -101,11 +101,11 @@ MONGODB_COLLECTION_ARTICLE = "article"
 MONGODB_COLLECTION_COMMENT = "comment"
 MONGODB_COLLECTION_USER = "user"
 # MongoDB database user agent
-# MONGODB_USER_AGENT = "user_agent"
-# MONGODB_COLLECTION_USER_AGENT = "user_agents"
+MONGODB_USER_AGENT = "user_agent"
+MONGODB_COLLECTION_USER_AGENT = "user_agents"
 # MongoDB database proxy
-# MONGODB_PROXY = "proxy"
-# MONGODB_COLLECTION_PROXY = "proxys"
+MONGODB_PROXY = "proxy"
+MONGODB_COLLECTION_PROXY = "proxys"
 
 # autohome account configure
 AUTOHOME_USER_NAME = 'your_name'        # 汽车之家账户

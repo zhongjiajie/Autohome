@@ -3,6 +3,7 @@
 
 import json
 import logging
+import math
 import random
 import re
 import time
@@ -36,6 +37,10 @@ class AutohomeSpider(Spider):
         self.user_activity_part = 'http://i.autohome.com.cn/ajax/home/GetUserInfo?userid={}&r={}&_={}'
         # 用户车库连接 （随机数, 用户id）
         self.user_carbarn_part = 'http://i.autohome.com.cn/ajax/home/OtherHomeAppsData?appname=Car&r={}&TuserId={}'
+        # 用户关注连接 （用户id, 关注页面数）
+        self.user_following_part = 'http://i.autohome.com.cn/{}/following?page={}'
+        # 用户粉丝连接 （用户id, 粉丝页面数）
+        self.user_followers_part = 'http://i.autohome.com.cn/{}/followers?page={}'
 
     def start_requests(self):
         """
@@ -295,4 +300,62 @@ class AutohomeSpider(Spider):
         user_info['concern_car_count'] = response_json['ConcernCount']
         user_info['concern_carbarn'] = response_json['ConcernInfoList']
 
-        yield user_info
+        # 组装meta和user_following_url，生成用户关注request
+        user_following_url = self.user_following_part.format(user_info['user_id'], '1')
+        following_list = []
+        meta = {'following_list': following_list, 'page': '1', 'item': user_info}
+        yield Request(user_following_url, meta=meta, callback=self.pase_user_following)
+
+    def pase_user_following(self, response):
+        """
+        接收pase_user_carbarn传递的mata，调用ajax接口为itme增加用户关注名单，并将增加后的item交给pase_user_followers获取用户粉丝名单
+        :param response: 
+        :return: 
+        """
+        # 从response.meta中提取数据
+        user_info = response.meta['item']
+        following_num = int(user_info['following_num'])
+        following_list = response.meta['following_list']
+
+        # 更新meta内容，实现关注人员的翻页操作
+        following_list.extend(response.xpath('//ul[@class="duList2"]//li/@id').extract())
+
+        # 判断当前页面是最后一页（页面数=ceil(关注人数/每页最多人数（20）) if following_num != 0 else following_num）
+        if int(response.meta['page']) == (int(math.ceil(float(following_num) / 20))) or following_num == 0:
+            # 最后一页的following_list就是用户当前关注的所有人
+            user_info['user_following'] = response.meta['following_list']
+
+            # 组装meta和user_followers_url，生成用户粉丝request
+            user_followers_url = self.user_followers_part.format(user_info['user_id'], 1)
+            followers_list = []
+            meta = {'followers_list': followers_list, 'page': '1', 'item': user_info}
+            yield Request(user_followers_url, meta=meta, callback=self.pase_user_followers)
+        else:
+            # 不是最后一页时爬取page+1页内容
+            user_following_url = self.user_following_part.format(user_info['user_id'], int(response.meta['page']) + 1)
+            meta = {'following_list': following_list, 'page': str(int(response.meta['page']) + 1), 'item': user_info}
+            yield Request(user_following_url, meta=meta, callback=self.pase_user_following)
+
+    def pase_user_followers(self, response):
+        """
+        接收pase_user_following传递的mata，调用ajax接口为itme增加用户粉丝名单，并将增加后的item交给item pepiline处理
+        """
+        # 从response.meta中提取数据
+        user_info = response.meta['item']
+        followers_num = int(user_info['followers_num'])
+        followers_list = response.meta['followers_list']
+
+        # 更新meta内容，实现粉丝人员的翻页操作
+        followers_list.extend(response.xpath('//ul[@class="duList2"]//li/@id').extract())
+
+        # 判断当前页面是最后一页（页面数=ceil(粉丝人数/每页最多人数（20）) if following_num != 0 else following_num）
+        if int(response.meta['page']) == (int(math.ceil(float(followers_num) / 20))) or followers_num == 0:
+            # 最后一页的followers_list就是用户当前关注的所有人
+            user_info['user_followers'] = response.meta['followers_list']
+            yield user_info
+
+        else:
+            # 不是最后一页时爬取page+1页内容
+            user_followers_url = self.user_followers_part.format(user_info['user_id'], int(response.meta['page']) + 1)
+            meta = {'followers_list': followers_list, 'page': str(int(response.meta['page']) + 1), 'item': user_info}
+            yield Request(user_followers_url, meta=meta, callback=self.pase_user_followers)
