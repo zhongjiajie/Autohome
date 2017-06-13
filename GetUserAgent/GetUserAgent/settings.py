@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import datetime
 # Scrapy settings for GetUserAgent project
 #
 # For simplicity, this file contains only settings considered important or
@@ -98,4 +99,4 @@ MONGODB_COLLECTION_USER_AGENT = "user_agents"
 # Configure log file level
 LOG_LEVEL = 'INFO'
 # Configure log file name
-# LOG_FILE = '{}.log'.format(datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
+LOG_FILE = '{}.log'.format(datetime.datetime.now().strftime('%Y%m%d%H%M%S'))

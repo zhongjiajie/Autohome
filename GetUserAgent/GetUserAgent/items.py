@@ -9,8 +9,8 @@ import scrapy
 
 
 class UserAgentItem(scrapy.Item):
-    '''
+    """
     user agent的item
-    '''
+    """
     ua_type = scrapy.Field()
     ua = scrapy.Field()
