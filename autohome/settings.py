@@ -108,8 +108,8 @@ MONGODB_PROXY = "proxy"
 MONGODB_COLLECTION_PROXY = "proxys"
 
 # autohome account configure
-AUTOHOME_USER_NAME = '15692427903'
-AUTOHOME_PASSWORD = 'Zjjcxf955293'
+AUTOHOME_USER_NAME = 'your_username'
+AUTOHOME_PASSWORD = 'your_password'
 
 # Configure log file level
 LOG_LEVEL = 'INFO'
