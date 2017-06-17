@@ -11,9 +11,10 @@ import json
 import os
 
 import pymongo
-from autohome.items import AutohomeArticleShortItem, AutohomeArticleItem, AutohomeCommentItem, AutohomeUserItem
 from scrapy.conf import settings
 from scrapy.exceptions import DropItem
+
+from autohome.items import AutohomeArticleShortItem, AutohomeArticleItem, AutohomeCommentItem, AutohomeUserItem
 
 
 class AutohomeJsonPipeline(object):
