@@ -47,7 +47,7 @@ CONCURRENT_REQUESTS_PER_IP = 16
 # 是否允许使用cookie
 # COOKIES_ENABLED = False
 # 查看每一个cookie
-COOKIES_DEBUG = True
+# COOKIES_DEBUG = True
 
 # Disable Telnet Console (enabled by default)
 # TELNETCONSOLE_ENABLED = False
@@ -85,7 +85,7 @@ DEFAULT_REQUEST_HEADERS = {
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    # 'autohome.pipelines.AutohomeMongodbPipeline': 100,
+    'autohome.pipelines.AutohomeMongodbPipeline': 100,
     'autohome.pipelines.AutohomeJsonPipeline': 300,
 }
 
@@ -101,11 +101,11 @@ MONGODB_COLLECTION_ARTICLE = "article"
 MONGODB_COLLECTION_COMMENT = "comment"
 MONGODB_COLLECTION_USER = "user"
 # MongoDB database user agent
-MONGODB_USER_AGENT = "user_agent"
-MONGODB_COLLECTION_USER_AGENT = "user_agents"
+# MONGODB_USER_AGENT = "user_agent"
+# MONGODB_COLLECTION_USER_AGENT = "user_agents"
 # MongoDB database proxy
-MONGODB_PROXY = "proxy"
-MONGODB_COLLECTION_PROXY = "proxys"
+# MONGODB_PROXY = "proxy"
+# MONGODB_COLLECTION_PROXY = "proxys"
 
 # autohome account configure
 AUTOHOME_USER_NAME = 'your_name'        # 汽车之家账户
