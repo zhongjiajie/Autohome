@@ -3,14 +3,14 @@
 
 import json
 import logging
-import math
 import random
 import re
 import time
 
-from autohome.items import AutohomeArticleShortItem, AutohomeArticleItem, AutohomeCommentItem, AutohomeUserItem
 from scrapy import Request, FormRequest
 from scrapy.spiders import Spider
+
+from autohome.items import AutohomeArticleShortItem, AutohomeArticleItem, AutohomeCommentItem, AutohomeUserItem
 
 logger = logging.getLogger(__name__)
 
@@ -24,9 +24,6 @@ class AutohomeSpider(Spider):
     start_urls = 'http://www.autohome.com.cn/all/'
 
     def __init__(self):
-        # 登陆autohome链接 （post方法提交表单）
-        self.account_valid_part = 'http://account.autohome.com.cn/Login/ValidIndex'
-        self.account_part = 'http://account.autohome.com.cn/Login'
         # 文章缩略图下一页连接 （页面数字）
         self.article_next_page_part = 'http://www.autohome.com.cn{}'
         # 文章回复数量连接 （文章id）
@@ -39,10 +36,6 @@ class AutohomeSpider(Spider):
         self.user_activity_part = 'http://i.autohome.com.cn/ajax/home/GetUserInfo?userid={}&r={}&_={}'
         # 用户车库连接 （随机数, 用户id）
         self.user_carbarn_part = 'http://i.autohome.com.cn/ajax/home/OtherHomeAppsData?appname=Car&r={}&TuserId={}'
-        # 用户关注连接 （用户id, 关注页面数）
-        self.user_following_part = 'http://i.autohome.com.cn/{}/following?page={}'
-        # 用户粉丝连接 （用户id, 粉丝页面数）
-        self.user_followers_part = 'http://i.autohome.com.cn/{}/followers?page={}'
 
     def start_requests(self):
         """
@@ -82,6 +75,7 @@ class AutohomeSpider(Spider):
                     article_url = dict(article_short_item)['article_url']
                     yield Request(article_url, callback=self.parse_article)
                 else:
+                    # 前端有个文章是没有内容的
                     logger.warning(('`parse_article_short` function warning: one of page `{}` '
                                     'article has no detail text.').format(response.url))
 
@@ -107,12 +101,12 @@ class AutohomeSpider(Spider):
         # 有两种情况：一种是正常的文章（直接解析），另一种是以图片为主的新型文章（通过html拼接得到原始文章的连接，yield回parse_article解析）
         if response.xpath('//div[@class="area article"]/h1/text()').extract():
             article_item = AutohomeArticleItem()
-            # 部分文章没有相关车型，要在后台跳过
+            # 部分文章没有涉及相关的车型 要将几个key设为''
             if response.xpath('//div[@class="subnav-title-name"]/a/text()').extract():
                 article_item['car_name'] = response.xpath('//div[@class="subnav-title-name"]/a/text()').extract()[0]
                 article_item['car_link'] = response.xpath('//div[@class="subnav-title-name"]/a/@href').extract()[0]
-                article_item['car_type'] = \
-                    response.xpath('//div[@class="subnav-title-rank"]/text()').extract()[0].replace(u'关注排名', '')
+                article_item['car_type'] = re.sub(u'关注排名', '', \
+                    response.xpath('//div[@class="subnav-title-rank"]/text()').extract()[0])
                 article_item['car_type_rank'] = \
                     response.xpath('//div[@class="subnav-title-rank"]/span/text()').extract()[0].strip()
             else:
@@ -126,26 +120,33 @@ class AutohomeSpider(Spider):
             # 文章分类树是多层结构，用正则表达式替换特殊字符'[\r\n|\xa0| ]'
             article_item['article_classify'] = re.sub('[\r\n|\xa0| ]', '', ''.join(
                 response.xpath('//div[@class="breadnav fn-left"]//text()').extract()))
-            # 标题下面的日期、来源、类型、编辑。如果是新闻稿的话只有article_pub_time和article_type两个key
-            if len(response.xpath('//div[@class="article-info"]//span').extract()) == 4:
-                article_item['article_pub_time'] = \
-                    response.xpath('//div[@class="article-info"]/span[1]/text()').extract()[0].strip()
+            # 将日期替换成yyyymmddhhmi的格式
+            article_item['article_pub_time'] = re.sub(u'年|月|日|\ |:', '', \
+                      response.xpath('//div[@class="article-info"]/span[1]/text()').extract()[0].strip())
+            article_item['article_type'] = re.sub(u'类型：', '', \
+                    response.xpath('//div[@class="article-info"]/span[3]/text()').extract()[0])
+            # 标题下面的日期、来源、类型、编辑。根据len_article_info的长度获取相应的内容
+            len_article_info = len(response.xpath('//div[@class="article-info"]//span').extract())
+            if len_article_info == 4:
                 # 文章来源可能为空
                 article_item['article_from'] = \
                     ''.join(response.xpath('//div[@class="article-info"]/span[2]/a/text()').extract()).strip()
-                article_item['article_type'] = \
-                    response.xpath('//div[@class="article-info"]/span[3]/text()').extract()[0].replace(u'类型：', '')
-                # 前端变化了，先将list,join成一串，然后replace
-                article_item['article_writer'] = ''.join(response.xpath('//div[@class="article-info"]/span[4]//text()'
-                                                                        ).extract()).strip().replace(u'编辑：', '')
-            elif len(response.xpath('//div[@class="article-info"]//span').extract()) == 2:
-                article_item['article_pub_time'] = \
-                    response.xpath('//div[@class="article-info"]/span[1]/text()').extract()[0].strip()
-                article_item['article_type'] = \
-                    response.xpath('//div[@class="article-info"]/span[2]/text()').extract()[0].replace(u'类型：', '')
+                # 前端变化了，编辑页面嵌套在span标签中
+                article_item['article_writer'] = \
+                    ''.join(response.xpath('//div[@class="article-info"]/div/span/text()').extract())
+            elif len_article_info == 3:
+                # 文章来源可能为空
+                article_item['article_from'] = \
+                    ''.join(response.xpath('//div[@class="article-info"]/span[2]/a/text()').extract()).strip()
+                # 前端变化了，编辑页面嵌套在span标签中
+                article_item['article_writer'] = \
+                    response.xpath('//div[@class="article-info"]/div/a/text()').extract()[0]
+            elif len_article_info == 2:
+                # 新闻稿的话只有article_pub_time和article_type两个key
+                pass
             else:
                 logger.warning('`parse_article` function warning: unkown `{}` item.'.format(response.url))
-            # 正则替换两个特殊字符u'[\u3000\u3000|\xa0]'，p[not(@align)选择不含某属性的标签
+            # 正则替换两个特殊字符u'[\u3000\u3000|\xa0]' p[not(@align)选择不含某属性的标签
             article_item['article_detail'] = re.sub(u'[\u3000\u3000|\xa0]', '', ''.join(
                 response.xpath('//div[@class="article-content"]/p[not(@align)]//text()').extract()))
             article_item['article_photo'] = \
@@ -294,62 +295,4 @@ class AutohomeSpider(Spider):
         user_info['concern_car_count'] = response_json['ConcernCount']
         user_info['concern_carbarn'] = response_json['ConcernInfoList']
 
-        # 组装meta和user_following_url，生成用户关注request
-        user_following_url = self.user_following_part.format(user_info['user_id'], '1')
-        following_list = []
-        meta = {'following_list': following_list, 'page': '1', 'item': user_info}
-        yield Request(user_following_url, meta=meta, callback=self.pase_user_following)
-
-    def pase_user_following(self, response):
-        """
-        接收pase_user_carbarn传递的mata，调用ajax接口为itme增加用户关注名单，并将增加后的item交给pase_user_followers获取用户粉丝名单
-        :param response: 
-        :return: 
-        """
-        # 从response.meta中提取数据
-        user_info = response.meta['item']
-        following_num = int(user_info['following_num'])
-        following_list = response.meta['following_list']
-
-        # 更新meta内容，实现关注人员的翻页操作
-        following_list.extend(response.xpath('//ul[@class="duList2"]//li/@id').extract())
-
-        # 判断当前页面是最后一页（页面数=ceil(关注人数/每页最多人数（20）) if following_num != 0 else following_num）
-        if int(response.meta['page']) == (int(math.ceil(float(following_num) / 20))) or following_num == 0:
-            # 最后一页的following_list就是用户当前关注的所有人
-            user_info['user_following'] = response.meta['following_list']
-
-            # 组装meta和user_followers_url，生成用户粉丝request
-            user_followers_url = self.user_followers_part.format(user_info['user_id'], 1)
-            followers_list = []
-            meta = {'followers_list': followers_list, 'page': '1', 'item': user_info}
-            yield Request(user_followers_url, meta=meta, callback=self.pase_user_followers)
-        else:
-            # 不是最后一页时爬取page+1页内容
-            user_following_url = self.user_following_part.format(user_info['user_id'], int(response.meta['page']) + 1)
-            meta = {'following_list': following_list, 'page': str(int(response.meta['page']) + 1), 'item': user_info}
-            yield Request(user_following_url, meta=meta, callback=self.pase_user_following)
-
-    def pase_user_followers(self, response):
-        """
-        接收pase_user_following传递的mata，调用ajax接口为itme增加用户粉丝名单，并将增加后的item交给item pepiline处理
-        """
-        # 从response.meta中提取数据
-        user_info = response.meta['item']
-        followers_num = int(user_info['followers_num'])
-        followers_list = response.meta['followers_list']
-
-        # 更新meta内容，实现粉丝人员的翻页操作
-        followers_list.extend(response.xpath('//ul[@class="duList2"]//li/@id').extract())
-
-        # 判断当前页面是最后一页（页面数=ceil(粉丝人数/每页最多人数（20）) if following_num != 0 else following_num）
-        if int(response.meta['page']) == (int(math.ceil(float(followers_num) / 20))) or followers_num == 0:
-            # 最后一页的followers_list就是用户当前关注的所有人
-            user_info['user_followers'] = response.meta['followers_list']
-            yield user_info
-
-        else:
-            # 不是最后一页时爬取page+1页内容
-            user_followers_url = self.user_followers_part.format(user_info['user_id'], int(response.meta['page']) + 1)
-            meta = {'followers_list': followers_list, 'page': str(int(response.meta['page']) + 1), 'item': user_info}
-            yield Request(user_followers_url, meta=meta, callback=self.pase_user_followers)
+        yield user_info
