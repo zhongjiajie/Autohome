@@ -1,6 +1,8 @@
 # Autohome
 [Autohome](https://github.com/zhongjiajie/Autohome)基于[Scrapy](https://github.com/scrapy/scrapy)爬虫框架,实现对[汽车之家-文章](http://www.autohome.com.cn/all/)进行定向爬虫，并将抓取的数据存放进[MongoDB](https://github.com/mongodb/mongo)中。后期将对抓取数据进行简单的分析以及NLP的工作。
 
+* 说明：了解最新版本移步到[Autohome dev](https://github.com/zhongjiajie/Autohome/tree/dev)
+
 ## 运行环境
 * Python 2.7.10
 * MonogDB 3.2.10
